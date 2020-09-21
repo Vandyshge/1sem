@@ -13,7 +13,7 @@ def ex10(n):
 	t.speed(3)
 	t.right(90)
 	a = 1
-	for i in range(1, 10):
+	for i in range(n):
 		lep(a)
 		a += 0.2
 
