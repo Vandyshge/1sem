@@ -15,6 +15,6 @@ def ex10(n):
 	a = 1
 	for i in range(1, 10):
 		lep(a)
-		a += 1
+		a += 0.2
 
 ex10(2)
