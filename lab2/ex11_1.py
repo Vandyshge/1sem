@@ -9,7 +9,7 @@ def lep(a):
 		t.forward(a)
 
 
-def ex10(n):
+def ex11(n):
 	t.speed(3)
 	t.right(90)
 	a = 1
@@ -17,4 +17,4 @@ def ex10(n):
 		lep(a)
 		a += 0.2
 
-ex10(2)
+ex11(2)
