@@ -7,3 +7,5 @@ def Trance():
 
 for i in range(10):
 	Trance()
+
+#errthyheyt
