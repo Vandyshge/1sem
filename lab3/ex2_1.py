@@ -53,7 +53,7 @@ def unicorn(x, y):
 	pygame.draw.ellipse(screen, (222, 154, 237), (x + 72, y - 32, 50, 15))
 	pygame.draw.ellipse(screen, (162, 161, 255), (x + 68, y - 42, 40, 17))
 
-	pygame.draw.ellipse(screen, (162, 161, 255), (x - 10, y + 10, 50, 25))
+	pygame.draw.ellipse(screen, (162, 161, 255), (x - 10, y + 10, 50, 25)) #hvost
 	pygame.draw.ellipse(screen, (222, 154, 237), (x - 20, y + 25, 40, 18))
 	pygame.draw.ellipse(screen, (130, 189, 245), (x - 25, y + 35, 43, 19))
 	pygame.draw.ellipse(screen, (222, 154, 237), (x - 23, y + 47, 50, 25))
