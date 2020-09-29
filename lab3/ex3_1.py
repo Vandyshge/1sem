@@ -6,6 +6,8 @@ pygame.init()
 FPS = 30
 screen = pygame.display.set_mode((450, 610))
 
+#10 kartinka
+
 screen.fill((0, 235, 247))
 pygame.draw.rect(screen, (2, 250, 15), (0, 300, 450, 310))
 
@@ -15,12 +17,12 @@ def tree(x, y, a):
 	pygame.draw.rect(screen, (189, 189, 189), (x, y, 30 * a, 150 * a)) #stvol
 	pygame.draw.rect(screen, (237, 197, 128), (x, y, 30 * a, 150 * a), 2) 
 
-	pygame.draw.ellipse(screen, (47, 161, 48), (x - 40 * a, y - 20 * a, 110 * a, 100 * a))
+	pygame.draw.ellipse(screen, (47, 161, 48), (x - 40 * a, y - 20 * a, 110 * a, 100 * a)) #listva
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 40 * a, y - 20 * a, 110 * a, 100 * a), 2)
 
 	pygame.draw.ellipse(screen, (47, 161, 48), (x - 50 * a, y - 200 * a, 130 * a, 200 * a))
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 50 * a, y - 200 * a, 130 * a, 200 * a), 2)
-	
+
 	pygame.draw.ellipse(screen, (47, 161, 48), (x - 90 * a, y - 100 * a, 200 * a, 110 * a))
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 90 * a, y - 100 * a, 200 * a, 110 * a), 2)
 
@@ -71,6 +73,9 @@ def unicorn(x, y, a):
 	pygame.draw.ellipse(screen, (130, 245, 237), (x - 30 * a, y + 95 * a, 48 * a, 25 * a))
 	pygame.draw.ellipse(screen, (130, 189, 245), (x - 35 * a, y + 107 * a, 43 * a, 15 * a))
 
+def sun():
+	for i in range(100, 10, -0.1):
+		pygame.draw.circle(screen, (250, 217, 2), (350, 100), 100, 1)
 
 
 tree(50, 300, 0.5)
