@@ -69,24 +69,7 @@ def unicorn(x, y, a):
 	pygame.draw.ellipse(screen, (130, 189, 245), (x - 35 * a, y + 107 * a, 43 * a, 15 * a))
 
 
-# screen1 = pygame.display.set_mode((450, 610))
 
-# x, y = 200, 200
-# a = 1
-# pygame.draw.ellipse(screen, (162, 161, 255), (x - 10 * a, y + 10 * a, 50 * a, 25 * a))
-# # a = -1
-# pygame.draw.ellipse(screen, (162, 161, 255), (x - 10 * a, y + 10 * a, 50 * a, 25 * a))
-
-
-# tree(50, 200, 1)
-# tree(200, 200, 0.5)
-# unicorn(100, 300, -1)
-# unicorn(250, 470, 0.5)
-# pygame.transform.flip(screen1, True, True)
-# x, y = 200, 200
-# pygame.draw.ellipse(screen, (162, 161, 255), (x - 10 * a, y + 10 * a, 50 * a, 25 * a))
-
-# pygame.display.update()
 tree(50, 300, 0.5)
 tree(100, 250, 0.75)
 tree(150, 300, 0.57)
