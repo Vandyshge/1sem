@@ -12,12 +12,15 @@ pygame.draw.rect(screen, (2, 250, 15), (0, 300, 450, 310))
 pygame.draw.circle(screen, (250, 217, 2), (430, 30), 100, 0)
 
 def tree(x, y, a):
-	pygame.draw.rect(screen, (189, 189, 189), (x, y, 30 * a, 150 * a))
-	pygame.draw.rect(screen, (237, 197, 128), (x, y, 30 * a, 150 * a), 2)
+	pygame.draw.rect(screen, (189, 189, 189), (x, y, 30 * a, 150 * a)) #stvol
+	pygame.draw.rect(screen, (237, 197, 128), (x, y, 30 * a, 150 * a), 2) 
+
 	pygame.draw.ellipse(screen, (47, 161, 48), (x - 40 * a, y - 20 * a, 110 * a, 100 * a))
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 40 * a, y - 20 * a, 110 * a, 100 * a), 2)
+
 	pygame.draw.ellipse(screen, (47, 161, 48), (x - 50 * a, y - 200 * a, 130 * a, 200 * a))
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 50 * a, y - 200 * a, 130 * a, 200 * a), 2)
+	
 	pygame.draw.ellipse(screen, (47, 161, 48), (x - 90 * a, y - 100 * a, 200 * a, 110 * a))
 	pygame.draw.ellipse(screen, (36, 255, 105), (x - 90 * a, y - 100 * a, 200 * a, 110 * a), 2)
 
