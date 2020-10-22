@@ -3,16 +3,11 @@ from pygame.draw import *
 from random import randint
 pygame.init()
 
-# кол-во кадров в секнуду
 FPS = 50
-# время одного кадра
 time = 1 / FPS
-# сторона экрана
 side = 500
-# создание экрана
 screen = pygame.display.set_mode((side, side))
 
-# цвета
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
@@ -21,263 +16,199 @@ MAGENTA = (255, 0, 255)
 CYAN = (0, 255, 255)
 BLACK = (0, 0, 0)
 WHITE = (250, 250, 250)
-# цвета шариков
+
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 
+balls = []
+squares = []
+
+
+class Ball():
+    def __init__(self, x, y, v_x, v_y, r, color, life):
+        self.x = x
+        self.y = y
+        self.v_x = v_x
+        self.v_y = v_y
+        self.x0 = 0
+        self.y0 = 0
+        self.r = r
+        self.color = color
+        self.life = life
+
+    def trance(self, screen, ball, balls):
+        dx = self.v_x * time
+        dy = self.v_y * time
+        x = self.x + dx
+        y = self.y + dy
+
+        r = self.r
+
+        k = 0
+        if self.x0 != 0 or self.y0 != 0:
+            l_x = self.x0 - self.x
+            l_y = self.y0 - self.y
+            l = (l_x**2 + l_y**2)**0.5
+            sin = l_y / l
+            cos = l_x / l
+            v_x, v_y = self.v_x, self.v_y
+            self.v_x = v_x * (- cos ** 2 + sin ** 2) + v_y * (-2 * sin * cos)
+            self.v_y = v_x * (-2 * sin * cos) + v_y * (cos ** 2 - sin ** 2)
+            self.x = self.x - dx
+            self.y = self.y - dy
+            self.x0, self.y0 = 0, 0
+            k = 1
+            print("1 ---", self.x, self.y)
+        else:
+            for elem in balls:
+                if elem != ball:
+                    if (self.x + x - elem.x)**2 + (self.y + y - elem.y)**2 <= (self.r + elem.r)**2:
+                        elem.x0, elem.y0 = self.x, self.y
+                        l_x = elem.x - self.x
+                        l_y = elem.y - self.y
+                        l = (l_x**2 + l_y**2)**0.5
+                        sin = l_y / l
+                        cos = l_x / l
+                        v_x, v_y = self.v_x, self.v_y
+                        self.v_x = v_x * (- cos ** 2 + sin ** 2) + v_y * (-2 * sin * cos)
+                        self.v_y = v_x * (-2 * sin * cos) + v_y * (cos ** 2 - sin ** 2)
+                        self.x = self.x - dx
+                        self.y = self.y - dy
+                        k = 1
+                        print("2 ---", self.x, self.y)
+                        break
+       
+        if k == 0:
+            if x <= r:
+                self.x = 2 * r - x
+                self.v_x = - self.v_x
+            elif x >= (side - r):
+                self.x = 2 * (side - r) - x
+                self.v_x = - self.v_x
+            else:
+                self.x = x
+
+            if y <= r:
+                self.y = 2 * r - y
+                self.v_y = - self.v_y
+            elif y >= (side - r):
+                self.y = 2 * (side - r) - y
+                self.v_y = - self.v_y
+            else:
+                self.y = y
+
+        if self.life == 0:
+            self.delite(ball, balls)
+        else:
+            self.life -= 1
+            self.ball(screen)
+
+    def delite(self, ball, balls):
+        balls.pop(balls.index(ball))
+
+    def ball(self, screen):
+        circle(screen, self.color, (self.x, self.y), self.r)
+
+    def new_score(self, x_m, y_m, ball, balls):
+        if self.r**2 >= ((self.x - x_m)**2 + (self.y - y_m)**2):
+            self.delite(ball, balls)
+            return 1
+        else:
+            return 0
+
+
+class Square():
+    def __init__(self, x, y, v_x, v_y, a, color, life):
+        self.x = x
+        self.y = y
+        self.v_x = v_x
+        self.v_y = v_y
+        self.a = a
+        self.color = color
+        self.life = life
+
+    def trance(self, screen, square, squares):
+        x = self.x + self.v_x * time
+        y = self.y + self.v_y * time
+
+        a = self.a
+
+        if x <= a / 2:
+            self.x = 2 * a / 2 - x
+            self.v_x = - self.v_x
+        elif x >= (side - a / 2):
+            self.x = 2 * (side - a / 2) - x
+            self.v_x = - self.v_x
+        else:
+            self.x = x
+
+        if y <= a / 2:
+            self.y = 2 * a / 2 - y
+            self.v_y = - self.v_y
+        elif y >= (side - a / 2):
+            self.y = 2 * (side - a / 2) - y
+            self.v_y = - self.v_y
+        else:
+            self.y = y
+
+        if self.life == 0:
+            self.delite(square, squares)
+        else:
+            self.life -= 1
+            self.square(screen)
+
+    def delite(self, square, squares):
+        squares.pop(squares.index(square))
+
+    def square(self, screen):
+        a = self.a
+        rect(screen, self.color, (self.x - a / 2, self.y - a / 2, a, a))
+
+    def new_score(self, x_m, y_m, square, squares):
+        if (self.a / 2 >= (abs(self.x - x_m))) and (self.a / 2 >= abs(self.y - y_m)):
+            self.delite(square, squares)
+            return 10
+        else:
+            return 0
+
+
+
 def new_ball(screen, balls):
-    '''
-    создаёт и рисует новый кружочек 
-
-    screen - экран
-    balls - массив кружочков
-
-    '''
-    # рандомные координаты центра, радиус, скорость и цвет
+    '''рисует новый кружочек '''
     x = float(randint(100, 300))
     y = float(randint(100, 300))
     r = float(randint(10, 50))
     v_x = float(randint(-10, 10)) * 5
     v_y = float(randint(-10, 10)) * 5
     color = COLORS[randint(0, 5)]
-    # рисование нового кружочков
-    circle(screen, color, (x, y), r)
-    # запись в массив нового кружочка(последнее число в массиве -  время жизни)
-    balls.append([x, y, v_x, v_y, r, color, 5 * FPS])
+    balls.append(Ball(x, y, v_x, v_y, r, color, 10 * FPS))
+    balls[len(balls) - 1].ball(screen)
 
 def new_square(screen, squares):
-    '''
-    создаёт и рисует новый квадратик 
-
-    screen - экран
-    squares - массив квадратиков
-
-    '''
-    # рандомные координаты центра, длинна стороны, скорость и цвет
+    '''рисует новый кружочек '''
     x = float(randint(100, 300))
-    y = float(randint(100, 300))
-    a = float(randint(10, 100))
-    v_x = float(randint(-10, 10)) * 10
-    v_y = float(randint(-10, 10)) * 10
+    y = float(randint(250, 300))
+    a = float(randint(10, 50))
+    v_x = float(randint(-10, 10)) * 5
+    v_y = float(randint(-10, 10)) * 5
     color = COLORS[randint(0, 5)]
-    # рисование нового квадратика
-    rect(screen, color, (x - a / 2, y - a / 2, a, a))
-    # запись в массив нового квадратика(последнее число в массиве -  время жизни)
-    squares.append([x, y, v_x, v_y, a, color, 6 * FPS])
-
-
-def ball(screen, n, balls):
-    '''
-    рисование n кружочка
-
-    screen - экран
-    n - номер кружочка, который рисуем
-    balls - массив кружочков
-
-    '''
-    circle(screen, balls[n][5], (balls[n][0], balls[n][1]), balls[n][4])
-
-def square(screen, n, squares):
-    '''
-    рисование n квадратика
-
-    screen - экран
-    n - номер квадратика, который рисуем
-    squares - массив квадратиков
-
-    '''
-    a_n = squares[n][4]
-    rect(screen, squares[n][5], (squares[n][0] - a_n / 2, squares[n][1] - a_n / 2, a_n, a_n))
-
-def del_ball(n, balls):
-    '''
-    удаление n кружочка
-
-    n - номер кружочка, который удаляем
-    balls - массив кружочков
-
-    '''
-    balls.pop(n)
-
-def del_square(n, squares):
-    '''
-    удаление n квадратика
-
-    n - номер квадратика, который рисуем
-    squares - массив квадратиков
-
-    '''
-    squares.pop(n)
-
-
-def trance_ball_n(screen, n, balls, time, side, del_balls):
-    '''
-    перемещение n кружочка за time
-
-    screen - экран
-    n - номер кружочка, который рисуем
-    balls - массив кружочков
-    time - время одного кадра
-    side - сторона экрана
-    del_balls - функция удаления кружочков
-
-    '''
-    # изменение координат
-    # (balls[n][0], balls[n][1] - координаты в предыдущий момент)
-    # (balls[n][2] и balls[n][3] - скорости)
-    x_n = balls[n][0] + balls[n][2] * time
-    y_n = balls[n][1] + balls[n][3] * time
-    # радиус
-    r_n = balls[n][4]
-
-    # реализация откскока от стенки по оси x
-    if x_n <= r_n:
-        balls[n][0] = 2 * r_n - x_n
-        balls[n][2] = - balls[n][2]
-    elif x_n >= (side - r_n):
-        balls[n][0] = 2 * (side - r_n) - x_n
-        balls[n][2] = - balls[n][2]
-    else:
-        # если нет отскока
-        balls[n][0] = x_n
-
-    # реализация откскока от стенки по оси y
-    if y_n <= r_n:
-        balls[n][1] = 2 * r_n - y_n
-        balls[n][3] = - balls[n][3]
-    elif y_n >= (side - r_n):
-        balls[n][1] = 2 * (side - r_n) - y_n
-        balls[n][3] = - balls[n][3]
-    else:
-        # если нет отскока
-        balls[n][1] = y_n
-
-    # проверка времени жизни
-    if balls[n][6] == 0:
-        # время закончилось, шарик записывается в массив на удаление
-        del_balls.append(n)
-    else:
-        # частица жива
-        balls[n][6] -= 1
-        # рисование частицы
-        ball(screen, n, balls)
-
-def trance_square_n(screen, n, squares, time, side, del_squares):
-    '''
-    перемещение n квадратика за time
-
-    screen - экран
-    n - номер квадратика, который рисуем
-    squares - массив квадратиков
-    time - время одного кадра
-    side - сторона экрана
-    del_square - функция удаления квадратика
-
-    '''
-    # изменение координат
-    # (squares[n][0], squares[n][1] - координаты в предыдущий момент)
-    # (squares[n][2] и squares[n][3] - скорости)
-    # (движение не по прямой. (1 + 0.3 * randint(-10, 10)) - отвечает за это)
-    x_n = squares[n][0] + squares[n][2] * (1 + 0.3 * randint(-10, 10)) * time
-    y_n = squares[n][1] + squares[n][3] * (1 + 0.3 * randint(-10, 10)) * time
-    # сторона квадратика
-    a_n = squares[n][4]
-
-    # реализация откскока от стенки по оси x
-    if x_n <= a_n / 2:
-        squares[n][0] = 2 * a_n / 2 - x_n
-        squares[n][2] = - squares[n][2]
-    elif x_n >= (side - a_n / 2):
-        squares[n][0] = 2 * (side - a_n / 2) - x_n
-        squares[n][2] = - squares[n][2]
-    else:
-        # если нет отскока
-        squares[n][0] = x_n
-
-    # реализация откскока от стенки по оси y
-    if y_n <= a_n / 2:
-        squares[n][1] = 2 * a_n / 2 - y_n
-        squares[n][3] = - squares[n][3]
-    elif y_n >= (side - a_n / 2):
-        squares[n][1] = 2 * (side - a_n / 2) - y_n
-        squares[n][3] = - squares[n][3]
-    else:
-        # если нет отскока
-        squares[n][1] = y_n
-
-    # проверка времени жизни
-    if squares[n][6] == 0:
-        # время закончилось, шарик записывается в массив на удаление
-        del_squares.append(n)
-    else:
-        # частица жива
-        squares[n][6] -= 1
-        # рисование частицы
-        square(screen, n, squares)
+    squares.append(Square(x, y, v_x, v_y, a, color, 3 * FPS))
+    squares[len(squares) - 1].square(screen)
 
 def trance(screen, balls, squares, time, side):
-    '''
-    перемещение всех частиц за time
+    for ball in balls:
+        ball.trance(screen, ball, balls)
+    for square in squares:
+        square.trance(screen, square, squares)
 
-    screen - экран
-    balls - массив кружочков
-    squares - массив квадратиков
-    time - время одного кадра
-    side - сторона экрана
 
-    '''
-    # массив, в который записываем кружочки, которые умерли
-    del_balls = []
-    N_b = len(balls)
-    # перемещаем каждый кружочек
-    for n in range(N_b):
-        trance_ball_n(screen, n, balls, time, side, del_balls)
-    # удаляем умершие кружочки
-    for n in del_balls:
-        del_ball(n, balls)
-
-    # массив, в который записываем квадратики, которые умерли
-    del_squares = []
-    N_sq = len(squares)
-    # перемещаем каждый квадратик
-    for n in range(N_sq):
-        trance_square_n(screen, n, squares, time, side, del_squares)
-    # удаляем умершие квадратики
-    for n in del_squares:
-        del_square(n, squares)
-
-def new_score(score, x_m, y_m, balls, squares):
-    '''
-    если мышкой попал по кружочку, то твои очки увеличиваются на 1
-    если мышкой попал по квадратику, то твои очки увеличиваются на 10
-
-    score - счет игрока
-    x_m, y_m - координаты мышки
-    balls - массив кружочков
-    squares - массив квадратиков
-
-    '''
-    # проходим по всем кружочкам, если мышка в области кружочка, то увеличиваем счёт на 1
-    for n in range(len(balls) - 1, -1, -1):
-        if balls[n][4]**2 >= ((balls[n][0] - x_m)**2 + (balls[n][1] - y_m)**2):
-            # на всяций случай выводим в командную строку
-            print("Попал")
-            # удаляем кружочек
-            del_ball(n, balls)
-            return score + 1
-
-    # проходим по всем квадратикам, если мышка в области квадратика, то увеличиваем счёт на 10
-    for n in range(len(squares) - 1, -1, -1):
-        if (squares[n][4] / 2 >= (abs(squares[n][0] - x_m))) and (squares[n][4] / 2 >= abs(squares[n][1] - y_m)):
-            # на всяций случай выводим в командную строку
-            print("Попал")
-            # удаляем квадратик
-            del_square(n, squares)
-            return score + 10
-
-    # если не попал, счёт остаётся неизменным
-    print("Промах")
+def new_score_g(score, x_m, y_m, balls, squares):
+    for ball in balls:
+        score += ball.new_score(x_m, y_m, ball, balls)
+    for square in squares:
+        score += square.new_score(x_m, y_m, square, squares)
     return score
+
 
 def result(name, score):
     '''
@@ -305,6 +236,8 @@ def result(name, score):
     for i in range(len(people)):
         out.write('{}. {} --- {}\n'.format(i + 1, people[i][1], people[i][0]))
     out.close()
+    return people
+
 
 # флажок начальной страницы
 k_g = 'page_0'
@@ -420,7 +353,7 @@ while not finished:
         # флажок для отсчёта времени в игре
         k_t = 0
         # время одного раунда(в секундах)
-        game_time_i = 10
+        game_time_i = 15
 
         # текст страницы
         # очки
@@ -447,7 +380,7 @@ while not finished:
                     # координаты мышки
                     x_m, y_m = event.pos
                     # обновляем счёт в зависимости от нажатия
-                    score = new_score(score, x_m, y_m, balls, squares)
+                    score = new_score_g(score, x_m, y_m, balls, squares)
                     # на всякий случай выводим счёт в командную строку
                     print("score --- {}".format(score))
 
@@ -455,14 +388,14 @@ while not finished:
             trance(screen, balls, squares, time, side)
 
             # если прошло 6с или на экране нет кружочков, добавляем новый
-            if (k_b == 6 * FPS) or (len(balls) == 0):
+            if (k_b == 1 * FPS) or (len(balls) == 0):
                 new_ball(screen, balls)
                 # флажок ставим в положение 0
                 k_b = 0
             # обновляем флажок
             k_b += 1
 
-            # если прошло 6с или на экране нет квадратиков, добавляем новый
+            # # если прошло 6с или на экране нет квадратиков, добавляем новый
             if (k_sq == 6 * FPS) or (len(squares) == 0):
                 new_square(screen, squares)
                 # флажок ставим в положение 0
@@ -507,7 +440,9 @@ while not finished:
         # стрница с результатом
 
         # запись результата игрока
-        result(name, score)
+        people = result(name, score)
+        # print(result(name, score))
+
 
         # флажок для выхода из цикла
         k_g_2 = 1
@@ -532,6 +467,15 @@ while not finished:
             f6 = pygame.font.Font(None, 36)
             text6 = f6.render('new player', 20, WHITE)
             screen.blit(text6, (5, 80))
+
+
+            k_r = 0
+            for i in range(len(people)):
+                f6 = pygame.font.Font(None, 36)
+                text6 = f6.render('{}. {} --- {}'.format(i + 1, people[i][1], people[i][0]), 20, WHITE)
+                screen.blit(text6, (5, 130 + k_r))
+                k_r += 25
+
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
