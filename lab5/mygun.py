@@ -26,8 +26,9 @@ WHITE = (250, 250, 250)
 COLORS = [RED, BLUE, YELLOW, GREEN, MAGENTA, CYAN]
 
 
-# массив кружочков
+# массив кружочков-снарядов
 balls_bullet = []
+# массив кружочков-мишений
 balls_target = []
 
 
@@ -146,20 +147,17 @@ class Ball():
         '''
         circle(screen, self.color, (self.x, self.y), self.r)
 
-    def new_score(self, ball):
+    def new_score(self, balls_bullet):
         '''
         если мышкой попали по кружочку, даётся 1 очко
 
-        x_m, y_m - координаты мышки
         ball - кружочек
-        balls - массив кружочков
+        balls_bullet - массив кружочков-снарядов
 
         '''
         for elem in balls_bullet:
             if (elem.r + self.r)**2 >= ((self.x - elem.x)**2 + (self.y - elem.y)**2):
-                # удаляем умерший кружочек
-                self.delite(ball, balls_target)
-                elem.delite(elem, balls_bullet)
+                # удаляем все кружочки
                 Game.delite()
                 # возвращаем 1 - кол-во очков за убитый кружочек
                 return 1
@@ -170,46 +168,61 @@ class Ball():
 
 
 class Gun():
+    '''Gun - объект-пушка'''
     def __init__(self):
-        # self.a0 = 10
         self.b0 = 30
-        # self.a = self.a0
         self.b = self.b0
         self.color = WHITE
         self.x, self.y = 10, 400
         self.t = 0
         self.time = 0
 
-    def draw(self):
+    def draw(self, balls_bullet):
+        '''
+        рисует пушку
+
+        balls_bullet - массив кружочков-снарядов
+
+        '''
+        # если кнопка зажата, то увеличиваем длину пушки
         if Mouse.p:
+            # ограничитель длинны
             if self.t < dt * 200:
+                # увеличиваем длину
                 self.t += dt
                 self.b = self.b * (1 + 0.005 * self.t)
         else:
+            # если t не равно 0, то был произведён выстрел
             if self.t != 0:
+                # если игра не закончилась, то создаём кружочек-снаряд и увеличиваем кол-во попыток
                 if not Game.p:
                     Game.n += 1
                     Game.new_ball_bullet(screen, balls_bullet)
                     self.t = 0
             self.b = self.b0
-        # g = pygame.Surface((self.b, self.a))
-        # g.fill(WHITE)
-        # g.set_colorkey(BLACK)
-        # rect(g, self.color, (0, 0, self.b, self.a))
-        # g = pygame.transform.rotate(g, self.arctan())
-        # screen.blit(g, (self.x, self.y))
+        # поворачиваем пушку по направению к мышке и рисуем
         c_x = self.b * np.cos(self.arctan()) + self.x
         c_y = self.b * np.sin(self.arctan()) + self.y
         pygame.draw.line(screen, WHITE, [self.x, self.y], [c_x, c_y], 10)
 
     def arctan(self):
+        '''
+        считает угол между горизанталью и положением мышки
+
+        '''
         x = Mouse.x - self.x
         y = self.y - Mouse.y
-        return - np.arctan(y / x)
+        # проверка на случай, когда tg не определён
+        if x == 0:
+            arctan = - np.pi / 2
+        else:
+            arctan = - np.arctan(y / x)
+        return arctan
 
 
 
 class Game():
+    '''Game - игра'''
     def __init__(self):
         self.score = 0
         self.n = 0
@@ -223,6 +236,13 @@ class Game():
         self.time_target = self.time_target0
 
     def new_ball_bullet(self, screen, balls_bullet):
+        '''
+        создаёт новый кружочек-снаряд
+
+        screen - экран
+        balls - массив кружочков-снарядов
+
+        '''
         x = Gun.x + Gun.b * np.cos(Gun.arctan())
         y = Gun.y + Gun.b * np.sin(Gun.arctan())
         v = Gun.t * 75
@@ -233,33 +253,81 @@ class Game():
         balls_bullet[len(balls_bullet) - 1].ball(screen)
 
     def new_ball_target(self, screen, balls_target):
-        x = randint(200, 450)
-        y = randint(50, 450)
-        r = randint(5, 50)
+        '''
+        создаёт новый кружочек-мишень
+
+        screen - экран
+        balls - массив кружочков-мишений
+
+        '''
+        # создаём новый кружочек так, чтобы он не попал в другие кружочки
+        k = 0
+        while k == 0:
+            # рандомные координаты центра и радиус
+            x = float(randint(100, 300))
+            y = float(randint(100, 300))
+            r = float(randint(10, 50))
+            # проверяем положение кружочка
+            k1 = 0
+            for ball in balls_target:
+                if (x - ball.x)**2 + (y - ball.y)**2 <= (r + ball.r)**2:
+                    k1 = 1
+            # если он не наложился, выходим из цикла
+            if k1 == 0:
+                k = 1
+        # рандомные координаты скорости и цвет
         v_x = float(randint(-10, 10)) * 5
         v_y = float(randint(-10, 10)) * 5
         color = COLORS[randint(0, 5)]
+        # запись в массив нового кружочка(последнее число в массиве -  время жизни)
         balls_target.append(Ball(x, y, v_x, v_y, r, color, life=10*FPS, g=0))
+        # рисование нового кружочков
         balls_target[len(balls_target) - 1].ball(screen)
 
-    def game_score(self):
+    def game_score(self, balls_bullet, balls_target):
+        '''
+        считает очки(в данном случае проверяет попали в цель или нет)
+
+        balls_bullet - массив кружочков-снарядов
+        balls_target - массив кружочков-мишений
+
+        '''
+        # проверяем все мишений
         if len(balls_bullet) != 0:
             for ball in balls_target:
-                score_i = ball.new_score(ball)
+                score_i = ball.new_score(balls_bullet)
+                # если попали, то обновляем переменные для вывода очков
                 if score_i != 0:
                     self.score += score_i
+                    # сколько вермени будет висеть результат
                     self.t = self.t0
                     self.game_time = 0
+                    # флажок-Попал
                     self.p = True
 
     def delite(self):
+        '''
+        удаляет все объекты на экране
+
+        balls_bullet - массив кружочков-снарядов
+        balls_target - массив кружочков-мишений
+
+        '''
         global balls_bullet
         global balls_target
         balls_bullet = []
         balls_target = []
 
 
-    def game_screen(self):
+    def game_screen(self, screen, balls_target):
+        '''
+        вывод на экран
+
+        screen - экран
+        balls_target - массив кружочков-мишений
+
+        '''
+        # время и кол-во попыток
         f0 = pygame.font.Font(None, 36)
         text0 = f0.render('попытки: {}'.format(self.n), 5, WHITE)
         screen.blit(text0, (5, 5))
@@ -268,81 +336,101 @@ class Game():
         text0 = f0.render('время: {}'.format(self.game_time), 5, WHITE)
         screen.blit(text0, (5, 30))
 
-        for ball in balls_target:
-            ball.ball(screen)
-
+        # кружочек мышки
         circle(screen, WHITE, (Mouse.x, Mouse.y), 5)
 
-        Gun.draw()
+        # пушка
+        Gun.draw(balls_bullet)
 
+        # вывод результата, если попали или закончилось время
         if self.p == True:
             if self.score != 0: 
+                # если попали
                 f0 = pygame.font.Font(None, 36)
-                text0 = f0.render('Вы спарвились за {} выстрелов'.format(self.n), 5, WHITE)
+                text0 = f0.render('Вы справились за {} выстрелов'.format(self.n), 5, WHITE)
                 screen.blit(text0, (50, 100))
             else:
+                # если не попали
                 f0 = pygame.font.Font(None, 36)
                 text0 = f0.render('Вы проиграли', 5, WHITE)
                 screen.blit(text0, (150, 100))
+            # время
             self.t -= 1
-            print(self.t)
             if self.t == 0:
+                # если время вышло, обновляем параметры для следующей игры
                 self.n = 0
                 self.game_time = self.game_time0
                 self.score = 0
                 self.p = False
                 self.time_target = self.time_target0
 
-    def game(self):
+    def game(self, screen, balls_bullet, balls_target):
+        '''
+        тело игры
+
+        screen - экран
+        balls_bullet - массив кружочков-снарядов
+        balls_target - массив кружочков-мишений
+
+        '''
+        # проверка событий
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return True
             if event.type == pygame.MOUSEMOTION:
+                # запись новых координат мышки(если она подвинулась)
                 Mouse.x, Mouse.y = event.pos
             if event.type == pygame.MOUSEBUTTONDOWN:
+                # кнопка зажата
                 Mouse.p = True
             if event.type == pygame.MOUSEBUTTONUP:
+                # кнопка отжата
                 Mouse.p = False
 
+        # перемещение всех кружочков
         for ball in balls_bullet:
             ball.trance(screen, ball, balls_bullet)
         for ball in balls_target:
             ball.trance(screen, ball, balls_target)
-
+        # если мешений нет и игра не закончена, создание одной мишени
         if len(balls_target) == 0 and not self.p:
             Game.new_ball_target(screen, balls_target)
-
+        # созднаие мешени каждые time_target0
         if self.time_target == 0 and not self.p:
             Game.new_ball_target(screen, balls_target)
             self.time_target0
         self.time_target -= 1
 
-        Game.game_screen()
+        # вывод всего на экран
+        Game.game_screen(screen, balls_target)
 
-        Game.game_score()
+        # обновление очков
+        Game.game_score(balls_bullet, balls_target)
 
+        # посчёт оставшегося времени
         if not self.p:
             if self.game_time_FPS == FPS:
                 self.game_time -= 1
                 self.game_time_FPS = 0
             self.game_time_FPS += 1
 
+        # игра окончена, если game_time закончилось
         if self.game_time == 0 and not self.p:
             self.t = self.t0
             self.game_time = 0
             self.p = True
+            # удаление всех объектов
             self.delite()
 
-
+        # обновление экрана
         pygame.display.update()
-
         screen.fill(BLACK)
-
         return False
 
 
 
 class Mouse():
+    '''Mouse - объект-мышка'''
     def __init__(self):
         self.x = 0
         self.y = 0
@@ -361,6 +449,6 @@ finished = False
 while not finished:
     clock.tick(FPS)
 
-    finished = Game.game()
+    finished = Game.game(screen, balls_bullet, balls_target)
 
 pygame.quit()
