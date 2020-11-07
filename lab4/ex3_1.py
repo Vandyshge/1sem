@@ -143,7 +143,7 @@ class Ball():
         screen - экран
 
         '''
-        circle(screen, self.color, (self.x, self.y), self.r)
+        circle(screen, self.color, (int(self.x), int(self.y)), int(self.r))
 
     def new_score(self, x_m, y_m, ball, balls):
         '''
@@ -269,7 +269,7 @@ class Square():
 
         '''
         a = self.a
-        rect(screen, self.color, (self.x - a / 2, self.y - a / 2, a, a))
+        rect(screen, self.color, (int(self.x - a / 2), int(self.y - a / 2), int(a), int(a)))
 
     def new_score(self, x_m, y_m, square, squares):
         '''
