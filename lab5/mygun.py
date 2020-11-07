@@ -145,7 +145,7 @@ class Ball():
         screen - экран
 
         '''
-        circle(screen, self.color, (self.x, self.y), self.r)
+        circle(screen, self.color, (int(self.x), int(self.y)), int(self.r))
 
     def new_score(self, balls_bullet):
         '''
@@ -203,7 +203,7 @@ class Gun():
         # поворачиваем пушку по направению к мышке и рисуем
         c_x = self.b * np.cos(self.arctan()) + self.x
         c_y = self.b * np.sin(self.arctan()) + self.y
-        pygame.draw.line(screen, WHITE, [self.x, self.y], [c_x, c_y], 10)
+        pygame.draw.line(screen, WHITE, [int(self.x), int(self.y)], [int(c_x), int(c_y)], 10)
 
     def arctan(self):
         '''
