@@ -34,11 +34,20 @@ squares = []
 class Ball():
     '''Ball - объект кружочек'''
     def __init__(self, x, y, v_x, v_y, r, color, life):
+        '''
+        :param x: координата тела по горизонтальной оси
+        :param y: координата тела по вертикальной оси
+        :param v_x: проекция скорости тела по оси x
+        :param v_y: проекция скорости тела по оси y
+        :param r: радиус
+        :param color: цвет
+        :param life: время жизни в сек
+        '''
         self.x = x
         self.y = y
         self.v_x = v_x
         self.v_y = v_y
-        self.k = 0
+        self.k = 0 # флажок. Если тело в эту эпоху сталкивалось с другими телами, то k = 1
         self.r = r
         self.color = color
         self.life = life
@@ -167,16 +176,33 @@ class Ball():
 class Square():
     '''Square - объект квадратик'''
     def __init__(self, x, y, v_x, v_y, a, color, life):
+        '''
+        :param x: координата тела по горизонтальной оси
+        :param y: координата тела по вертикальной оси
+        :param v_x: проекция скорости тела по оси x
+        :param v_y: проекция скорости тела по оси y
+        :param a: длина стороны
+        :param color: цвет
+        :param life: время жизни в сек
+        '''
         self.x = x
         self.y = y
         self.v_x = v_x
         self.v_y = v_y
-        self.k = 0
+        self.k = 0 # флажок. Если тело в эту эпоху сталкивалось с другими телами, то k = 1
         self.a = a
         self.color = color
         self.life = life
 
     def trance(self, screen, square, squares):
+        '''
+        перемещение квадратика
+
+        screen - экран
+        square - квадратик
+        squares - массив квадратиков
+
+        '''
         # рандомные коэффициенты для скоростей
         rand_x = (1 + 0.3 * randint(-10, 10))
         rand_y = (1 + 0.3 * randint(-10, 10))
