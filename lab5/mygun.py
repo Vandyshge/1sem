@@ -35,11 +35,21 @@ balls_target = []
 class Ball():
     '''Ball - объект кружочек'''
     def __init__(self, x, y, v_x, v_y, r, color, life=5*FPS, g=20):
+        '''
+        :param x: координата тела по горизонтальной оси
+        :param y: координата тела по вертикальной оси
+        :param v_x: проекция скорости тела по оси x
+        :param v_y: проекция скорости тела по оси y
+        :param r: радиус
+        :param color: цвет
+        :param life: время жизни в сек
+        :param g: ускорение свободного падения
+        '''
         self.x = x
         self.y = y
         self.v_x = v_x
         self.v_y = v_y
-        self.k = 0
+        self.k = 0 # флажок. Если тело в эту эпоху сталкивалось с другими телами, то k = 1
         self.r = r
         self.color = color
         self.life = life
@@ -170,12 +180,19 @@ class Ball():
 class Gun():
     '''Gun - объект-пушка'''
     def __init__(self):
+        '''
+        :param b0: начальная длина ствола
+        :param b: длина ствола
+        :param color: цвет
+        :param x: координата начала ствола по горизонтальной оси
+        :param y: координата начала ствола по вертикальной оси
+        :param t: время зажима клавиши
+        '''
         self.b0 = 30
         self.b = self.b0
         self.color = WHITE
         self.x, self.y = 10, 400
         self.t = 0
-        self.time = 0
 
     def draw(self, balls_bullet):
         '''
@@ -224,6 +241,18 @@ class Gun():
 class Game():
     '''Game - игра'''
     def __init__(self):
+        '''
+        param score: очки
+        param n: кол-во попыток
+        param t0: сколько времени будут висеть "результаты"
+        param t: сколько осталось до начала новой игры
+        param game_time_FPS: сколько осталось до конца в секундах
+        param game_time0: время игры
+        param game_time: сколько осталось до одной сек
+        param p: флажок конца игры
+        param time_target0: время, через которое генерируется новая цель
+        param time_target: флажок для времени
+        '''
         self.score = 0
         self.n = 0
         self.t0 = 4 * FPS
@@ -432,6 +461,11 @@ class Game():
 class Mouse():
     '''Mouse - объект-мышка'''
     def __init__(self):
+        '''
+        param x: координата мышки по горизонтали
+        param y: координата мышки по вертикали
+        param p: флажок зажатия клавиши
+        '''
         self.x = 0
         self.y = 0
         self.p = False
