@@ -434,7 +434,7 @@ def result(name, score):
 
     '''
     # записываем в массив результаты других игроков 
-    out = open('C:/Users/Xiaomi/1sem/lab4/list.txt', 'r')
+    out = open('list.txt', 'r')
     people = []
     line = out.readline().strip()
     while line != '':
@@ -442,7 +442,7 @@ def result(name, score):
         people.append((int(line[3]), line[1]))
         line = out.readline().strip()
     out.close()
-    out = open('C:/Users/Xiaomi/1sem/lab4/list.txt', 'w')
+    out = open('list.txt', 'w')
     # добавляем результаты игрока
     people.append((score, name))
     # сортируем результаты по счёту игроков
