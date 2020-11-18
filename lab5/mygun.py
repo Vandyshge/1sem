@@ -157,18 +157,19 @@ class Ball():
         '''
         circle(screen, self.color, (int(self.x), int(self.y)), int(self.r))
 
-    def new_score(self, balls_bullet):
+    def new_score(self, ball_target, balls_bullet, balls_target):
         '''
         если мышкой попали по кружочку, даётся 1 очко
 
-        ball - кружочек
+        ball_target - кружочек
         balls_bullet - массив кружочков-снарядов
 
         '''
         for elem in balls_bullet:
             if (elem.r + self.r)**2 >= ((self.x - elem.x)**2 + (self.y - elem.y)**2):
-                # удаляем все кружочки
-                Game.delite()
+                # удаляем кружочки
+                elem.delite(elem, balls_bullet)
+                self.delite(ball_target, balls_target)
                 # возвращаем 1 - кол-во очков за убитый кружочек
                 return 1
             else:
@@ -321,18 +322,13 @@ class Game():
         balls_target - массив кружочков-мишений
 
         '''
+        score_i = 0
         # проверяем все мишений
         if len(balls_bullet) != 0:
             for ball in balls_target:
-                score_i = ball.new_score(balls_bullet)
+                score_i += ball.new_score(ball, balls_bullet, balls_target)
                 # если попали, то обновляем переменные для вывода очков
-                if score_i != 0:
-                    self.score += score_i
-                    # сколько вермени будет висеть результат
-                    self.t = self.t0
-                    self.game_time = 0
-                    # флажок-Попал
-                    self.p = True
+        return score_i
 
     def delite(self):
         '''
@@ -375,9 +371,21 @@ class Game():
         if self.p == True:
             if self.score != 0: 
                 # если попали
+                string1 = 'очков'
+                if self.score == 1:
+                    string1 = 'очко'
+                elif self.score > 1 and self.score < 5:
+                    string1 = 'очка'
+
+                string2 = 'выстрелов'
+                if self.n == 1:
+                    string2 = 'выстрел'
+                elif self.n > 1 and self.n < 5:
+                    string2 = 'выстрела'
+
                 f0 = pygame.font.Font(None, 36)
-                text0 = f0.render('Вы справились за {} выстрелов'.format(self.n), 5, WHITE)
-                screen.blit(text0, (50, 100))
+                text0 = f0.render('Вы заработали {} {} за {} {}'.format(self.score, string1, self.n, string2), 5, WHITE)
+                screen.blit(text0, (5, 100))
             else:
                 # если не попали
                 f0 = pygame.font.Font(None, 36)
@@ -423,18 +431,18 @@ class Game():
             ball.trance(screen, ball, balls_target)
         # если мешений нет и игра не закончена, создание одной мишени
         if len(balls_target) == 0 and not self.p:
-            Game.new_ball_target(screen, balls_target)
+            self.new_ball_target(screen, balls_target)
         # созднаие мешени каждые time_target0
         if self.time_target == 0 and not self.p:
-            Game.new_ball_target(screen, balls_target)
+            self.new_ball_target(screen, balls_target)
             self.time_target0
         self.time_target -= 1
 
         # вывод всего на экран
-        Game.game_screen(screen, balls_target)
+        self.game_screen(screen, balls_target)
 
         # обновление очков
-        Game.game_score(balls_bullet, balls_target)
+        self.score += self.game_score(balls_bullet, balls_target)
 
         # посчёт оставшегося времени
         if not self.p:
